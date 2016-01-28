@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+require 'colorize'
+
+#check for rails debugger
+# rails_result = `grep -rlsn "binding.pry" --exclude-dir=".git" .`
+
+# if rails_result != ""
+# 	puts 'You have added binding.pry in your files'.colorize(:red)
+# 	puts rails_result
+# 	exit 1
+# end
+
+diff_files = %x(git diff --cached --name-only)
+
+rails_result = `grep -rlsn "binding.pry" --exclude-dir=".git" #{diff_files}`
+
+if rails_result != ""
+	puts 'You have added binding.pry in your files'.colorize(:red)
+	puts rails_result
+	exit 1
+end

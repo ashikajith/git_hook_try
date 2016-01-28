@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require 'colorize'
+
+# diff_files = %x(git diff --cached --name-only)
+
+rails_result = `grep -rlns "binding.pry" --exclude-dir=".git" #{diff_files}`
+
+if rails_result != ""
+	puts 'You have added binding.pry in your files'.colorize(:red)
+	puts rails_result
+	exit 1
+end
+
+# Can Include console.log
+
+# Running  Test
+#  rspec spec/ --format=progress | grep "example"| grep "fail"| awk {'print $3'}
+
+# Stash unstaged changes before running tests
+
+%x(git stash -q --keep-index)
+
+
+failures = %x(rspec spec/ |grep "examples"| grep "failure"| awk {'print $3'}).to_i
+
+rubocop_failures = %x(rubocop |grep "offenses"| awk {'print $4'}).to_i
+
+# # Unstash
+%x(git stash pop -q)
+#
+if failures!=0
+	puts 'Your modified files doesnot passed the test'.colorize(:red)
+	exit 1
+else
+	puts 'All test passed'.colorize(:green)
+	exit 0
+end
